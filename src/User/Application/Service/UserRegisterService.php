@@ -7,10 +7,12 @@ namespace App\User\Application\Service;
 use App\Core\Domain\Entity\User;
 use App\Core\Infrastructure\Exception\DataNotFoundException;
 use App\User\Domain\Generator\PasswordHashGenerator;
+use App\User\Domain\Message\RegisterEmailMessage;
 use Psr\Log\LoggerInterface;
 use SensitiveParameter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 readonly class UserRegisterService implements UserRegisterServiceInterface
 {
@@ -21,6 +23,7 @@ readonly class UserRegisterService implements UserRegisterServiceInterface
         private MailerInterface              $mailer,
         private UserPasswordRepository       $userPasswordRepository,
         private TranslateServiceInterface    $translateService,
+        private MessageBusInterface $bus
     ) {
     }
 
@@ -55,23 +58,9 @@ readonly class UserRegisterService implements UserRegisterServiceInterface
         return $newUser;
     }
 
-    public function sendMail(User $newUser, string $registerCode, Request $request): void
+    public function sendMail(User $newUser): void
     {
-//        if ($_ENV['APP_ENV'] !== 'test') {
-//            $email = (new TemplatedEmail())
-//                ->from($_ENV['INSTITUTION_EMAIL'])
-//                ->to($newUser->getUserInformation()->getEmail())
-//                ->subject($this->translateService->getTranslation('AccountActivationCodeSubject'))
-//                ->htmlTemplate('emails/register.html.twig')
-//                ->context([
-//                    'userName'  => $newUser->getUserInformation()->getFirstname() . ' ' . $newUser->getUserInformation()->getLastname(),
-//                    'code'      => $registerCode,
-//                    'userEmail' => $newUser->getUserInformation()->getEmail(),
-//                    'url'       => $_ENV['BACKEND_URL'],
-//                    'lang'      => $request->getPreferredLanguage() !== null ? $request->getPreferredLanguage() : $this->translateService->getLocate(),
-//                ]);
-//
-//            $this->mailer->send($email);
-//        }
+        $message = new RegisterEmailMessage($newUser);
+        $this->bus->dispatch($message);
     }
 }

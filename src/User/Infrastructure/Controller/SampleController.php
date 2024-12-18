@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Controller;
 
-use App\User\Domain\Message\ExamlpeMessage;
+use App\User\Domain\Message\RegisterEmailMessage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -28,7 +28,7 @@ final class SampleController extends AbstractController
     )]
     public function examlpe(MessageBusInterface $bus): Response
     {
-        $message = new ExamlpeMessage('content');
+        $message = new RegisterEmailMessage('content');
         $bus->dispatch($message);
 
         return new Response(sprintf('XZDSAD with content %s was published', $message->getContent()));
